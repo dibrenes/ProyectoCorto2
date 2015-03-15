@@ -1,0 +1,151 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date:    14:33:22 03/14/2015 
+// Design Name: 
+// Module Name:    FSM2 
+// Project Name: 
+// Target Devices: 
+// Tool versions: 
+// Description: 
+//
+// Dependencies: 
+//
+// Revision: 
+// Revision 0.01 - File Created
+// Additional Comments: 
+//
+//////////////////////////////////////////////////////////////////////////////////
+module FSM2(
+	 input esnumero,
+	 input [3:0] tvalida,
+	 input Reset,
+	 input CLK,
+    output reg enable_FSM1,
+	 output reg  [3:0] decenas,
+	 output reg  [3:0] unidades,
+    output reg  [3:0] motor,
+	 output reg  [3:0] presencia
+);
+
+localparam estado_inicial = 4'd0,
+				  estado1 = 4'd1,
+				  estado2 = 4'd2,
+				  estado3 = 4'd3,
+			     estado4 = 4'd4,
+				  estado5 = 4'd5,
+				  estado6 = 4'd6,
+				  estado7 = 4'd7,
+				  estado8 = 4'd8,
+				  estado9 = 4'd9,
+				  estado10 = 4'd10,
+				  estado11 = 4'd11;
+				  
+	
+	reg [3:0] estado_actual;
+	reg [3:0] estado_siguiente;
+	//Registros de saldia
+
+
+
+	always@(posedge CLK) begin 
+		if (Reset) 
+			estado_actual <= estado_inicial;
+		else
+			estado_actual <= estado_siguiente;
+	end
+
+
+always@( * ) begin
+	
+		estado_siguiente = estado_actual;
+		
+		case (estado_actual)
+			
+			estado_inicial : begin estado_siguiente = estado1; end 
+			
+			estado1 : begin
+				if (tvalida == 4'b1010 )
+					estado_siguiente = estado2;
+		  end
+			
+			estado2: begin
+				if (esnumero)
+					estado_siguiente = estado3;
+			end
+			
+			estado3: begin
+				if (tvalida == 4'b1100)
+					estado_siguiente = estado4;
+			end
+		
+			estado4: begin
+				if (esnumero)
+					estado_siguiente = estado5;
+			end
+			
+			estado5: begin
+				if (tvalida == 4'b1100)
+					estado_siguiente = estado6;
+			end
+			
+			estado6: begin
+				if (tvalida == 0001| tvalida == 0000 )
+					estado_siguiente = estado7;
+			end
+			
+			estado7: begin
+				if (tvalida == 4'b1100)
+					estado_siguiente = estado8;
+			end
+			
+			estado8: begin
+				if (tvalida == 0001| tvalida == 0000)
+					estado_siguiente = estado9;
+			end
+		
+			estado9: begin
+				if (tvalida == 4'b1100)
+					estado_siguiente = estado10;
+			end		
+			
+			estado10: begin
+				if (tvalida == 4'b1011)
+					estado_siguiente = estado11;
+			end			
+		
+			estado11: begin
+				if (tvalida == 4'b1100)
+					estado_siguiente = estado_inicial;
+			end
+			
+		endcase
+	end
+	
+// Salidas
+		always@( * ) begin
+			decenas=4'b0;
+			unidades=4'b0;
+			motor=4'b0;
+			presencia=4'b0;
+			enable_FSM1=1'b0;
+			
+		case (estado_actual)
+			estado3 : begin decenas=tvalida; end
+			estado5 : begin unidades=tvalida; end
+			estado7 : begin motor=tvalida; end
+			estado9 : begin presencia=tvalida; end
+			estado11 : begin enable_FSM1=1'b1; end //habilita maquina uno con uno
+			
+		endcase
+	end
+	
+endmodule
+
+
+
+
+
+
